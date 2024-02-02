@@ -77,8 +77,6 @@ class Smarty_Form_Submissions_Locator {
 	 *
 	 * - Smarty_Form_Submissions_Loader. Orchestrates the hooks of the plugin.
 	 * - Smarty_Form_Submissions_i18n. Defines internationalization functionality.
-	 * - Smarty_Form_Submissions_Register_Post_Types. Defines CPT functionality.
-	 * - Smarty_Form_Submissions_Register_Taxonomies. Defines taxonomies functionality.
 	 * - Smarty_Form_Submissions_Admin. Defines all hooks for the admin area.
 	 * - Smarty_Form_Submissions_Public. Defines all hooks for the public side of the site.
 	 *
@@ -98,16 +96,6 @@ class Smarty_Form_Submissions_Locator {
 		 * The class responsible for defining internationalization functionality of the plugin.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-i18n.php';
-
-		/**
-		 * The class responsible for registering custom post types functionality of the plugin.
-		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-register-post-types.php';
-
-		/**
-		 * The class responsible for registering taxonomies functionality of the plugin.
-		 */
-		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-register-taxonomies.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
@@ -153,6 +141,7 @@ class Smarty_Form_Submissions_Locator {
 
 		$this->loader->add_action('init', $plugin_admin, 'register_submission_type');
 		$this->loader->add_action('init', $plugin_admin, 'register_subject_taxonomy', 0);
+		$this->loader->add_action('admin_menu', $plugin_admin, 'remove_add_new_submenu');
 		$this->loader->add_action('rest_api_init', $plugin_admin, 'register_submission_routes');
 		$this->loader->add_action('add_meta_boxes', $plugin_admin, 'add_submission_meta_boxes');
 		$this->loader->add_action('save_post', $plugin_admin, 'save_submission_meta_box');

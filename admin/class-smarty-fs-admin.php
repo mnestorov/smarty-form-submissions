@@ -92,12 +92,84 @@ class Smarty_Form_Submissions_Admin {
 	}
 
 	/**
+     * Register the `Submissions` post type.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_submission_type() {
+        register_post_type('submission', 
+			array(
+				'labels' => array(
+					'name' 				 => __('Submissions', 'smarty-form-submissions'),
+					'singular_name' 	 => __('Submission', 'smarty-form-submissions')
+				),
+				'public' 				 => true,
+				'publicly_queryable' 	 => false,
+				'exclude_from_search' 	 => true,
+				'has_archive' 			 => false,
+				'rewrite' 				 => array(
+					'slug' => 'submissions'
+				),
+				'supports' 				 => array('custom-fields'),
+        		'taxonomies' 			=> array('subject'),
+				'menu_icon' 			=> 'dashicons-buddicons-pm',
+			)
+		);
+    }
+
+	/**
+     * Register the `Subject` taxonomy.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_subject_taxonomy() {
+        $labels = array(
+			'name' 				=> _x('Subjects', 'taxonomy general name', 'smarty-form-submissions'),
+			'singular_name' 	=> _x('Subject', 'taxonomy singular name', 'smarty-form-submissions'),
+			'search_items' 		=> __('Search Subjects', 'smarty-form-submissions'),
+			'all_items' 		=> __('All Subjects', 'smarty-form-submissions'),
+			'parent_item' 		=> __('Parent Subject', 'smarty-form-submissions'),
+			'parent_item_colon' => __('Parent Subject:', 'smarty-form-submissions'),
+			'edit_item' 		=> __('Edit Subject', 'smarty-form-submissions'),
+			'update_item' 		=> __('Update Subject', 'smarty-form-submissions'),
+			'add_new_item' 		=> __('Add New Subject', 'smarty-form-submissions'),
+			'new_item_name' 	=> __('New Subject Name', 'smarty-form-submissions'),
+			'menu_name' 		=> __('Subjects', 'smarty-form-submissions'),
+		);
+	
+		$args = array(
+			'hierarchical' 		=> true,
+			'labels' 			=> $labels,
+			'show_ui' 			=> true,
+			'show_admin_column' => true,
+			'query_var' 		=> true,
+			'rewrite' 			=> array(
+				'slug' => 'subject'
+			),
+			'show_in_rest' 		=> true,
+		);
+	
+		register_taxonomy('subject', array('submission'), $args);
+    }
+	
+	/**
+	 * @since    1.0.0
+	 */
+	public function remove_add_new_submenu() {
+		global $submenu;
+		// Remove 'Add New' from the submenu
+		unset($submenu['edit.php?post_type=submission'][10]);
+	}
+
+	/**
 	 * @since    1.0.0
 	 */
 	public function register_submission_routes() {
 		register_rest_route('wp/v2', '/submit-form/', array(
-			'methods' 			 => 'POST',
-			'callback' 			 => 'handle_form_submission',
+			'methods' 			  => 'POST',
+			'callback' 			  => 'handle_form_submission',
 			'permission_callback' => '__return_true',
 		));
 	}
@@ -122,13 +194,15 @@ class Smarty_Form_Submissions_Admin {
 			update_post_meta($post_id, 'last_name', sanitize_text_field($data['lastName']));
 			update_post_meta($post_id, 'email', sanitize_email($data['email']));
 			update_post_meta($post_id, 'phone', sanitize_text_field($data['phone']));
+
 			if (!empty($data['subject'])) { // Handle the subject taxonomy
 				// Assuming $data['subject'] contains the term's name
 				// This will create the term if it doesn't exist or add the existing term to the post
 				wp_set_object_terms($post_id, sanitize_text_field($data['subject']), 'subject', false);
 			}
+
 			update_post_meta($post_id, 'message', sanitize_text_field($data['message']));
-	
+
 			return new WP_REST_Response(array('message' => 'Submission successful', 'post_id' => $post_id), 200);
 		}
 	
@@ -140,17 +214,17 @@ class Smarty_Form_Submissions_Admin {
 	 */
 	public function add_submission_meta_boxes() {
 		add_meta_box(
-			'submission_meta_box',        							// Unique ID
-			__('Submission Details', 'smarty-form-submissions'),    // Box title
-			'submission_meta_box_html',   							// Content callback, must be of type callable
-			'submission'                         					// Post type
+			'submission_meta_box',                             		// Unique ID
+			__('Submission Details', 'smarty-form-submissions'), 	// Box title
+			array($this, 'submission_meta_box_html'),               // Corrected callback
+			'submission'                                        	// Post type
 		);
 	}
 
 	/**
 	 * @since    1.0.0
 	 */
-	public function smarty_submission_meta_box_html($post) {
+	public function submission_meta_box_html($post) {
 		$firstName 				= get_post_meta($post->ID, 'first_name', true);
 		$lastName 				= get_post_meta($post->ID, 'last_name', true);
 		$email 					= get_post_meta($post->ID, 'email', true);
@@ -162,7 +236,7 @@ class Smarty_Form_Submissions_Admin {
 		// Use nonce for verification
 		wp_nonce_field(plugin_basename(__FILE__), 'submission_nonce');
 		
-		include_once('partials/smarty-fs-admin.display.php');
+		include_once 'partials/smarty-fs-admin-display.php';
 	}
 
 	/**
@@ -291,7 +365,7 @@ class Smarty_Form_Submissions_Admin {
 	/**
 	 * @since    1.0.0
 	 */
-	public function smarty_exclude_submissions_from_feed($query) {
+	public function exclude_submissions_from_feed($query) {
 		if ($query->is_feed()) {
 			$query->set('post_type', 'post'); // Only include standard posts in feeds
 		}

@@ -15,7 +15,7 @@ The Smarty Studio - Form Submissions plugin is a powerful and intuitive tool des
 
 Smarty Studio - Form Submissions offers a seamless integration into your WordPress site, allowing you to create and manage contact forms. It leverages the WordPress REST API for form submissions, ensuring a smooth and secure data handling process.
 
-**Key Features include:**
+## Features
 
 - **Custom Post Type for Submissions:** Organize and store form submissions as custom post types, making them easily accessible and manageable from the WordPress admin area.
 - **Subject Taxonomy:** Categorize submissions using a custom taxonomy, enabling efficient sorting and filtering.

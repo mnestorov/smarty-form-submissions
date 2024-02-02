@@ -1,0 +1,18 @@
+/**
+ * All of the CSS for plugin admin functionality should be included in this file.
+ */
+
+.form-table { 
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 30px;
+}
+
+.submission-status.pending { 
+    color: red; 
+    font-weight: bold;
+}
+
+.submission-status.publish { 
+    color: green; 
+    font-weight: bold;
+}

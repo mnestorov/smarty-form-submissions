@@ -18,11 +18,11 @@ class Smarty_Form_Submissions_Register_Post_Types {
      * @since 1.0.0
      * @return void
      */
-    public function register_business_type() {
+    public function register_submission_type() {
         /**
          * Post Type: Submissions
          */
-        $labels => array(
+        $labels = array(
             'name'          => __('Submissions', 'smarty-form-submissions'),
             'singular_name' => __('Submission', 'smarty-form-submissions'),
         );

@@ -13,7 +13,7 @@
  * @package                 Smarty_Form_Submissions
  *
  * @wordpress-plugin
- * Plugin Name:             SM - Form Submissions for WordPress
+ * Plugin Name:             SM - Form Submissions
  * Plugin URI:              https://smartystudio.net/smarty-form-submissions
  * Description:             Powerful and intuitive tool designed to enhance the interaction between website owners and their users through efficient form submission management.
  * Version:                 1.0.0

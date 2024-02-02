@@ -53,9 +53,7 @@
 				<tr>
 					<td colspan="3">
 						<label for="message"><b><?= __('Message:', 'smarty-form-submissions'); ?></b></label><br>
-						<textarea id="message" name="message" class="widefat" rows="6">
-							<?= esc_textarea($message); ?>
-						</textarea>
+						<textarea id="message" name="message" class="widefat" rows="6"><?= trim(esc_textarea($message)); ?></textarea>
 					</td>
 				</tr>
 			</tbody>

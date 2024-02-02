@@ -102,7 +102,9 @@ class Smarty_Form_Submissions_Admin {
 			array(
 				'labels' => array(
 					'name' 				 => __('Submissions', 'smarty-form-submissions'),
-					'singular_name' 	 => __('Submission', 'smarty-form-submissions')
+					'singular_name' 	 => __('Submission', 'smarty-form-submissions'),
+					'add_new'            => __('Add New Submission', 'smarty-form-submissions'),
+            		'add_new_item'       => __('Add New Submission', 'smarty-form-submissions'),
 				),
 				'public' 				 => true,
 				'publicly_queryable' 	 => false,
@@ -126,8 +128,8 @@ class Smarty_Form_Submissions_Admin {
      */
     public function register_subject_taxonomy() {
         $labels = array(
-			'name' 				=> _x('Subjects', 'taxonomy general name', 'smarty-form-submissions'),
-			'singular_name' 	=> _x('Subject', 'taxonomy singular name', 'smarty-form-submissions'),
+			'name' 				=> _x('Subjects', 'smarty-form-submissions'),
+			'singular_name' 	=> _x('Subject', 'smarty-form-submissions'),
 			'search_items' 		=> __('Search Subjects', 'smarty-form-submissions'),
 			'all_items' 		=> __('All Subjects', 'smarty-form-submissions'),
 			'parent_item' 		=> __('Parent Subject', 'smarty-form-submissions'),
@@ -167,9 +169,9 @@ class Smarty_Form_Submissions_Admin {
 	 * @since    1.0.0
 	 */
 	public function register_submission_routes() {
-		register_rest_route('wp/v2', '/submit-form/', array(
-			'methods' 			  => 'POST',
-			'callback' 			  => 'handle_form_submission',
+		register_rest_route('smarty/v1', '/submit-form/', array(
+			'methods' => WP_REST_Server::CREATABLE,
+			'callback' => array($this, 'handle_form_submission'), // Corrected callback reference
 			'permission_callback' => '__return_true',
 		));
 	}

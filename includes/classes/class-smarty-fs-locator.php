@@ -138,7 +138,6 @@ class Smarty_Form_Submissions_Locator {
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-
 		$this->loader->add_action('init', $plugin_admin, 'register_submission_type');
 		$this->loader->add_action('init', $plugin_admin, 'register_subject_taxonomy', 0);
 		$this->loader->add_action('admin_menu', $plugin_admin, 'remove_add_new_submenu');
@@ -150,6 +149,7 @@ class Smarty_Form_Submissions_Locator {
 		$this->loader->add_action('manage_submission_posts_custom_column', $plugin_admin, 'custom_submission_column', 10, 2);
 		$this->loader->add_filter('manage_edit-submission_sortable_columns', $plugin_admin, 'make_submission_columns_sortable');
 		$this->loader->add_action('pre_get_posts', $plugin_admin, 'exclude_submissions_from_feed');
+		$this->loader->add_action('wp_ajax_delete_comment', $plugin_admin, 'delete_comment_ajax');
 	}
 
 	/**

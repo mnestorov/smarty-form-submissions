@@ -26,29 +26,28 @@
 	 * Ideally, it is not considered best practise to attach more than a
 	 * single DOM-ready or window-load handler for a particular page.
 	 */
+	
+	$(document).on('click', '.delete-comment', function(e) {
+		e.preventDefault();
+		if (!confirm("Are you sure you want to delete this comment?")) return;
 
-    $(document).ready(function() {
-        $('#smarty_speedy_manual_update').click(function() {
-            $.post(speedy_params.ajax_url, {
-                action: 'smarty_trigger_speedy_update',
-                security: speedy_params.update_nonce
-            }, function(response) {
-                if (response.success) {
-                    $('#smarty_speedy_update_message').html('<div class="notice notice-info smarty-auto-hide-notice" style="width:250px;"><p>' + response.data.message + '</p></div>');
-                } else {
-                    $('#smarty_speedy_update_message').html('<div class="notice notice-error smarty-auto-hide-notice" style="width:250px;"><p>' + speedy_params.updatespeedyOfficesFailedMessage + '</p></div>');
-                }
-            });
-        });
-    });
+		let button = $(this);
+        let commentId = button.data('comment-id');
+        let postId = $('#post_ID').val();
+        let postData = {
+            action: 'delete_comment',
+            nonce: smartyFsAdmin.nonce,
+            post_id: postId,
+            comment_id: commentId
+        };
 
-	$(document).on('DOMNodeInserted', function(e) {
-		if ($(e.target).hasClass('smarty-auto-hide-notice')) {
-			setTimeout(function() {
-				$(e.target).fadeTo(500, 0).slideUp(500, function() {
-					$(this).remove(); 
-				});
-			}, 3000); // time (in milliseconds)
-		}
+		$.post(smartyFsAdmin.ajax_url, postData, function(response) {
+			if (response.success) {
+				button.closest('div').remove();
+				window.location.reload(true);
+			} else {
+				console.error('Error: ' + response.data.message);
+			}
+		});
 	});
 })(jQuery);

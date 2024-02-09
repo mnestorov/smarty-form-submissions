@@ -13,50 +13,42 @@
  */
 ?>
 
-<div class="wrap">
-	<div class="smarty-fs-settings-section">
-		<table class="form-table" style="width: auto;">
-			<tbody>
-				<tr>
-					<td>
-						<label for="first_name"><b><?= __('First Name:', 'smarty-form-submissions'); ?></b></label><br>
-						<input type="text" id="first_name" name="first_name" value="<?= esc_attr($firstName); ?>" />
-					</td>
-					<td>
-						<label for="last_name"><b><?= __('Last Name:', 'smarty-form-submissions'); ?></b></label><br>
-						<input type="text" id="last_name" name="last_name" value="<?=  esc_attr($lastName); ?>" />
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<label for="email"><b><?= __('Email:', 'smarty-form-submissions'); ?></b></label><br>
-						<input type="email" id="email" name="email" value="<?= esc_attr($email); ?>" />
-					</td>
-					<td>
-						<label for="phone"><b><?= __('Phone:', 'smarty-form-submissions'); ?></b></label><br>
-						<input type="text" id="phone" name="phone" value="<?= esc_attr($phone); ?>" />
-					</td>
-				</tr>
-				<tr>	
-					<td colspan="3">
-						<label for="subject"><b><?= __('Subject:', 'smarty-form-submissions'); ?></b></label><br>
-						<select id="subject" name="subject">
-						<?php $terms = get_terms(array('taxonomy' => 'subject', 'hide_empty' => false, )); ?>
+<div id="submission" class="wrap">
+	<table class="form-table wp-list-table widefat fixed striped">
+		<tbody>
+			<tr>
+				<th scope="row"><label for="first_name"><?= __('First Name:', 'smarty-form-submissions'); ?></label></th>
+				<td><input type="text" id="first_name" name="first_name" value="<?= esc_attr($firstName); ?>" class="regular-text" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="last_name"><?= __('Last Name:', 'smarty-form-submissions'); ?></label></th>
+				<td><input type="text" id="last_name" name="last_name" value="<?= esc_attr($lastName); ?>" class="regular-text" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="email"><?= __('Email:', 'smarty-form-submissions'); ?></label></th>
+				<td><input type="email" id="email" name="email" value="<?= esc_attr($email); ?>" class="regular-text" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="phone"><?= __('Phone:', 'smarty-form-submissions'); ?></label></th>
+				<td><input type="text" id="phone" name="phone" value="<?= esc_attr($phone); ?>" class="regular-text" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="subject"><?= __('Subject:', 'smarty-form-submissions'); ?></label></th>
+				<td>
+					<select id="subject" name="subject" class="regular-text">
+						<?php $terms = get_terms(['taxonomy' => 'subject', 'hide_empty' => false]); ?>
 						<?php foreach ($terms as $term) : ?>
-							<option value="<?= esc_attr($term->slug) . ' ' . selected($selected_subject_slug, $term->slug, false); ?>">
+							<option value="<?= esc_attr($term->slug); ?>" <?= selected($selected_subject_slug, $term->slug, false); ?>>
 								<?= esc_html($term->name); ?>
 							</option>
 						<?php endforeach; ?>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<label for="message"><b><?= __('Message:', 'smarty-form-submissions'); ?></b></label><br>
-						<textarea id="message" name="message" class="widefat" rows="6"><?= trim(esc_textarea($message)); ?></textarea>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="message"><?= __('Message:', 'smarty-form-submissions'); ?></label></th>
+				<td><textarea id="message" name="message" class="large-text" rows="6"><?= esc_textarea($message); ?></textarea></td>
+			</tr>
+		</tbody>
+	</table>
 </div>

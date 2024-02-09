@@ -63,11 +63,7 @@ class Smarty_Form_Submissions_Admin {
 		 * class.
 		 */
 
-		global $pagenow, $typenow;
-
-   		if ($pagenow == 'edit.php' && $typenow == 'submission') {
-			wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-fs-admin.css', array(), $this->version, 'all');
-		}
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-fs-admin.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -89,6 +85,10 @@ class Smarty_Form_Submissions_Admin {
 		 */
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/smarty-fs-admin.js', array('jquery'), $this->version, false);
+		wp_localize_script($this->plugin_name, 'smartyFsAdmin', array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'nonce' => wp_create_nonce('delete_comment_nonce')
+		));
 	}
 
 	/**
@@ -105,6 +105,10 @@ class Smarty_Form_Submissions_Admin {
 					'singular_name' 	 => __('Submission', 'smarty-form-submissions'),
 					'add_new'            => __('Add New Submission', 'smarty-form-submissions'),
             		'add_new_item'       => __('Add New Submission', 'smarty-form-submissions'),
+					'edit_item'          => __('Edit Submission', 'smarty-form-submissions'),
+					'view_item'          => __('View Submission', 'smarty-form-submissions'),
+					'all_items'          => __('All Submissions', 'smarty-form-submissions'),
+					'search_items'       => __('Search Submissions', 'smarty-form-submissions'),
 				),
 				'public' 				 => true,
 				'publicly_queryable' 	 => false,
@@ -113,9 +117,9 @@ class Smarty_Form_Submissions_Admin {
 				'rewrite' 				 => array(
 					'slug' => 'submissions'
 				),
+        		'taxonomies' 			 => array('subject'),
+				'menu_icon' 			 => 'dashicons-buddicons-pm',
 				'supports' 				 => array('custom-fields'),
-        		'taxonomies' 			=> array('subject'),
-				'menu_icon' 			=> 'dashicons-buddicons-pm',
 			)
 		);
     }
@@ -184,7 +188,7 @@ class Smarty_Form_Submissions_Admin {
 	
 		// Create a new submission post
 		$post_id = wp_insert_post(array(
-			'post_title' 	=> '', // wp_strip_all_tags($data['firstName'] . ' ' . $data['lastName'])
+			'post_title' 	=> '', // wp_strip_all_tags($data['firstName'] . ' ' . $data['lastName'] . ': ' . str_replace('-', ' ', ucfirst($data['subject'])))
 			'post_content'  => '',
 			'post_type' 	=> 'submission',
 			'post_status' 	=> 'pending',
@@ -204,6 +208,16 @@ class Smarty_Form_Submissions_Admin {
 			}
 
 			update_post_meta($post_id, 'message', sanitize_text_field($data['message']));
+			
+			// Capture additional information
+			$user_ip = $_SERVER['REMOTE_ADDR']; // Get user IP address
+			$user_agent = $_SERVER['HTTP_USER_AGENT']; // Get user agent
+			$device_type = wp_is_mobile() ? 'Mobile' : 'Desktop'; // Check if user is on a mobile device
+
+			// Store additional information as post meta
+			update_post_meta($post_id, 'user_ip', $user_ip);
+			update_post_meta($post_id, 'user_agent', $user_agent);
+			update_post_meta($post_id, 'device_type', $device_type);
 
 			return new WP_REST_Response(array('message' => 'Submission successful', 'post_id' => $post_id), 200);
 		}
@@ -221,6 +235,13 @@ class Smarty_Form_Submissions_Admin {
 			array($this, 'submission_meta_box_html'),               // Corrected callback
 			'submission'                                        	// Post type
 		);
+		
+		add_meta_box(
+			'submission_admin_comments', 							// Unique ID
+			__('Comments', 'smarty-form-submissions'), 		// Box title
+			array($this, 'admin_comments_meta_box_html'), 			// Callback function
+			'submission' 											// Post type
+		);
 	}
 
 	/**
@@ -234,11 +255,53 @@ class Smarty_Form_Submissions_Admin {
 		$selected_subject 		= get_the_terms($post->ID, 'subject'); // This will get the current subject terms assigned to the post
 		$selected_subject_slug  = !empty($selected_subject) ? $selected_subject[0]->slug : ''; // Assuming one subject per submission for simplicity
 		$message 				= get_post_meta($post->ID, 'message', true);
+		
+		// Retrieve additional information
+    	$user_ip = get_post_meta($post->ID, 'user_ip', true);
+    	$user_agent = get_post_meta($post->ID, 'user_agent', true);
+    	$device_type = get_post_meta($post->ID, 'device_type', true);
 
 		// Use nonce for verification
 		wp_nonce_field(plugin_basename(__FILE__), 'submission_nonce');
 		
 		include_once 'partials/smarty-fs-admin-display.php';
+	}
+	
+	/**
+	 * @since    1.0.0
+	 */
+	public function admin_comments_meta_box_html($post) {
+		// Retrieve existing comments
+		$comments = get_post_meta($post->ID, 'admin_comments', true);
+		
+		if (!is_array($comments)) {
+			$comments = []; // Ensure $comments is always an array
+		}
+
+		// Display existing comments with user and date
+		echo '<div class="comment-box">';
+		
+		foreach ($comments as $comment) {
+			// Check if all expected keys exist
+			if (isset($comment['content'], $comment['user'], $comment['date'], $comment['id'])) {
+				
+				echo '<div class="comment-body">' . wp_kses_post($comment['content']) . '</div>';
+				echo __('Added by ', 'smarty-form-submissions') . '<b>' . esc_html($comment['user']) . '</b>' . __(' on ', 'smarty-form-submissions') . esc_html($comment['date']);
+				echo '<a class="delete-comment" data-comment-id="' . esc_attr($comment['id']) . '">Delete</a>';
+				
+			}
+		}
+		
+		echo '</div>';
+
+		// Use wp_editor to add a WYSIWYG editor for new comments
+		$editor_settings = array(
+			'textarea_name' => 'admin_new_comment',
+			'textarea_rows' => 5,
+			'teeny' => true,
+			'media_buttons' => false,
+		);
+		wp_editor('', 'admin_new_comment', $editor_settings);
 	}
 
 	/**
@@ -266,6 +329,21 @@ class Smarty_Form_Submissions_Admin {
 				return;
 			}
 		}
+		
+		// Save new comment with metadata
+		if (!empty($_POST['admin_new_comment'])) {
+			$user = wp_get_current_user();
+			$new_comment = array(
+				'id' => md5(uniqid()), // Generate a unique ID for the comment
+				'content' => wp_kses_post($_POST['admin_new_comment']),
+				'user' => $user->display_name,
+				'date' => current_time('mysql'),
+			);
+
+			$comments = get_post_meta($post_id, 'admin_comments', true) ?: [];
+			$comments[] = $new_comment;
+			update_post_meta($post_id, 'admin_comments', $comments);
+		}
 
 		// Now we can actually save the data
 		$allowed_fields = [
@@ -282,6 +360,43 @@ class Smarty_Form_Submissions_Admin {
 				update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
 			}
 		}
+	}
+	
+	/**
+	 * @since    1.0.0
+	 */
+	public function delete_comment_ajax() {
+		error_log(print_r($_POST, true));
+		// Security check
+		check_ajax_referer('delete_comment_nonce', 'nonce');
+
+		$post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+		$comment_id = isset($_POST['comment_id']) ? sanitize_text_field($_POST['comment_id']) : '';
+
+		if ($post_id && $comment_id) {
+			$comments = get_post_meta($post_id, 'admin_comments', true);
+			if (!is_array($comments)) {
+				$comments = [];
+			}
+
+			// Remove the comment with the given ID
+			foreach ($comments as $key => $comment) {
+				if (isset($comment['id']) && $comment['id'] === $comment_id) {
+					unset($comments[$key]);
+					break;
+				}
+			}
+
+			// Save the updated comments array
+			update_post_meta($post_id, 'admin_comments', $comments);
+
+			wp_send_json_success(['message' => 'Comment deleted successfully']);
+		} else {
+			wp_send_json_error(['message' => 'Invalid request']);
+		}
+
+		// Don't forget to exit in AJAX handlers
+		wp_die();
 	}
 
 	/**
@@ -321,6 +436,11 @@ class Smarty_Form_Submissions_Admin {
 		$columns['taxonomy-subject']  = __('Subject', 'smarty-form-submissions');
 		$columns['submission_status'] = __('Status', 'smarty-form-submissions');
 		$columns['date'] 			  = __('Date', 'smarty-form-submissions');
+		
+		// Add new columns for IP, Browser, and Device
+		$columns['user_ip'] = __('IP Address', 'smarty-form-submissions');
+		$columns['user_agent'] = __('Browser', 'smarty-form-submissions');
+		$columns['device_type'] = __('Device Type', 'smarty-form-submissions');
 	
 		return $columns;
 	}
@@ -351,6 +471,17 @@ class Smarty_Form_Submissions_Admin {
 				$post_status = get_post_status($post_id);
 				$status_name = get_post_status_object($post_status)->label;
 				echo '<span class="submission-status ' . esc_attr($post_status) . '">' . esc_html($status_name) . '</span>';
+				break;
+				
+			// New columns
+			case 'user_ip':
+				echo esc_html(get_post_meta($post_id, 'user_ip', true));
+				break;
+			case 'user_agent':
+				echo esc_html(get_post_meta($post_id, 'user_agent', true));
+				break;
+			case 'device_type':
+				echo esc_html(get_post_meta($post_id, 'device_type', true));
 				break;
 		}
 	}

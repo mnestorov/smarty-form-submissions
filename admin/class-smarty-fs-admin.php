@@ -185,15 +185,15 @@ class Smarty_Form_Submissions_Admin {
 	 */
 	public function handle_form_submission(WP_REST_Request $request) {
 		$data = $request->get_params();
-	
+
 		// Create a new submission post
 		$post_id = wp_insert_post(array(
-			'post_title' 	=> '', // wp_strip_all_tags($data['firstName'] . ' ' . $data['lastName'] . ': ' . str_replace('-', ' ', ucfirst($data['subject'])))
+			'post_title'    => '', // Adjust or set title as needed
 			'post_content'  => '',
-			'post_type' 	=> 'submission',
-			'post_status' 	=> 'pending',
+			'post_type'     => 'submission',
+			'post_status'   => 'pending',
 		));
-	
+
 		if ($post_id) {
 			// Update custom fields
 			update_post_meta($post_id, 'first_name', sanitize_text_field($data['firstName']));
@@ -219,10 +219,34 @@ class Smarty_Form_Submissions_Admin {
 			update_post_meta($post_id, 'user_agent', $user_agent);
 			update_post_meta($post_id, 'device_type', $device_type);
 
-			return new WP_REST_Response(array('message' => 'Submission successful', 'post_id' => $post_id), 200);
+			// Send the email
+			$to = get_option('admin_email', 'admin@admin.local'); // Destination email address
+			$bcc = 'admin2@admin.local'; // BCC Email Address
+			$emailSubject = __('New Message: ', 'smarty-form-submissions') . sanitize_text_field(str_replace('-', ' ', ucfirst($data['subject']))); // Email subject line
+
+			// Email body with HTML formatting for bold labels
+			$body = '<html><body>';
+			$body .= '<p>' . __('You have received a new message.', 'smarty-form-submissions') . '</p>';
+			$body .= '<b>' . __('Name: ', 'smarty-form-submissions') . '</b>' . sanitize_text_field($data['firstName']) . ' ' . sanitize_text_field($data['lastName']) . '<br>';
+			$body .= '<b>' . __('Email: ', 'smarty-form-submissions') . '</b>' . sanitize_email($data['email']) . '<br>';
+			$body .= '<b>' . __('Phone: ', 'smarty-form-submissions') . '</b>' . sanitize_text_field($data['phone']) . '<br>';
+			$body .= '<b>' . __('Subject: ', 'smarty-form-submissions') . '</b>' . sanitize_text_field(str_replace('-', ' ', ucfirst($data['subject']))) . '<br>';
+			$body .= '<b>' . __('Message: ', 'smarty-form-submissions') . '</b><br>';
+			$body .= '<p>' . nl2br(sanitize_text_field($data['message'])) . '</p>';
+			$body .= '</body></html>';
+
+			// Headers for HTML content type and BCC
+			$headers = array(
+				'Content-Type: text/html; charset=UTF-8',
+				'Bcc: ' . $bcc
+			);
+
+			wp_mail($to, $emailSubject, $body, $headers);
+
+			return new WP_REST_Response(['message' => 'Submission received and email sent', 'post_id' => $post_id], 200);
 		}
-	
-		return new WP_REST_Response(array('message' => 'Failed to create submission'), 500);
+
+		return new WP_REST_Response(['message' => 'Failed to create submission'], 500);
 	}
 
 	/**

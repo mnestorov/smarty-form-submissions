@@ -2,7 +2,7 @@
  * All of the CSS for plugin admin functionality should be included in this file.
  */
 
- .submission-status.pending { 
+.submission-status.pending { 
     color: red; 
     font-weight: bold;
 }

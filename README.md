@@ -31,6 +31,10 @@ The plugin's integration is designed to be non-intrusive, allowing for a natural
 1. **Upload Plugin:** Download the plugin ZIP file and upload it via Plugins > Add New > Upload Plugin in WordPress.
 2. **Activate Plugin:** Activate the plugin in the 'Plugins' menu.
 
+## Contributing
+
+Contributions are welcome. Please follow the WordPress coding standards and submit pull requests for any enhancements.
+
 ---
 
 ## License

@@ -8,17 +8,17 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link                    https://smartystudio.net
+ * @link                    https://github.com/mnestorov
  * @since                   1.0.0
  * @package                 Smarty_Form_Submissions
  *
  * @wordpress-plugin
  * Plugin Name:             SM - Form Submissions
- * Plugin URI:              https://github.com/smartystudio/smarty-form-submissions
+ * Plugin URI:              https://github.com/mnestorov/smarty-form-submissions
  * Description:             Powerful and intuitive tool designed to enhance the interaction between website owners and their users through efficient form submission management.
  * Version:                 1.0.0
  * Author:                  Smarty Studio | Martin Nestorov
- * Author URI:              https://smartystudio.net
+ * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
  * License URI:             http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:             smarty-form-submissions

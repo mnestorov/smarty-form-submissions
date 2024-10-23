@@ -5,7 +5,7 @@
  *
  * This class defines all code necessary to run during the plugin's activation.
  *
- * @link       https://smartystudio.net/smarty-form-submissions
+ * @link       https://github.com/mnestorov/smarty-form-submissions
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions

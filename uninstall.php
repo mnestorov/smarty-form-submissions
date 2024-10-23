@@ -15,7 +15,7 @@
  * This file may be updated more in future version of the Boilerplate; however, this is the
  * general skeleton and outline for how the file should work.
  *
- * @link       https://smartystudio.net/smarty-form-submissions
+ * @link       https://github.com/mnestorov/smarty-form-submissions
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions

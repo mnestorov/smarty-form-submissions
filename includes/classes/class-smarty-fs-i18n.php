@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       https://smartystudio.net/smarty-form-submissions
+ * @link       https://github.com/mnestorov/smarty-form-submissions
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions

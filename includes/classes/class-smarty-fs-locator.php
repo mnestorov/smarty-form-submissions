@@ -9,7 +9,7 @@
  * Also maintains the unique identifier of this plugin as well as the current
  * version of the plugin.
  *
- * @link       https://smartystudio.net/smarty-form-submissions
+ * @link       https://github.com/mnestorov/smarty-form-submissions
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions

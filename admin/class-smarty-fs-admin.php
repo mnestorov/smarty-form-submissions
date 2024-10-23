@@ -6,7 +6,7 @@
  * Defines the plugin name, version, and two hooks for how to enqueue 
  * the admin-specific stylesheet (CSS) and JavaScript code.
  *
- * @link       https://smartystudio.net/smarty-form-submissions
+ * @link       https://github.com/mnestorov/smarty-form-submissions
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions

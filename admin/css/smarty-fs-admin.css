@@ -51,3 +51,114 @@
 	width: 100%;
 	border: 1px solid #dcdcde;
 }
+
+.form-table,
+.flex-container { 
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 30px;
+}
+ 
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+ 
+.flex-item {
+    flex-basis: 30%;
+    text-align: left;
+}
+ 
+.flex-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+ 
+.smarty-compatibility-status.smarty-compatibility-yes {
+    background: #E6F8B2;
+    color: #333;
+    padding: 2px 5px;
+    border-radius: 5px;
+    border: 1px solid #b8c68e;
+}
+ 
+.smarty-compatibility-status.smarty-compatibility-no {
+    background: #F4CCCC;
+    color: #333;
+    padding: 2px 5px;
+    border-radius: 5px;
+    border: 1px solid #c3a3a3;
+}
+ 
+.form-table td p.description.smarty-error {
+    padding: 2px 5px;
+}
+
+/* Buttons */
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: .85rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-success {
+    display: inline-block;
+    margin: 20px 5px;
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.btn-success:hover {
+    color: #fff;
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn.disabled, .btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+/* Helpers */
+
+.smarty-error {
+    background: #fff0f4 !important;
+    color: #c51244 !important;
+}
+
+.smarty-text-success {
+    color: #28a745;
+}
+
+.smarty-text-danger {
+    color: #c51244;
+}

@@ -50,4 +50,36 @@
 			}
 		});
 	});
+
+	// Auto-hide the admin notices
+	$(document).ready(function($) {
+		$('#smarty-fs-delete-logs-button').on('click', function(e) {
+			e.preventDefault();
+			if (confirm('Are you sure you want to delete all logs?')) {
+				$.post(
+					smartyFormSubmissions.ajaxUrl,
+					{
+						action: 'smarty_fs_clear_logs',
+						nonce: smartyFormSubmissions.nonce,
+					},
+					function(response) {
+						if (response.success) {
+							alert('Logs cleared.');
+							location.reload();
+						} else {
+							alert('Failed to clear logs.');
+						}
+					}
+				);
+			}
+		});
+
+		//console.log('Setting up auto-hide for admin notices');
+		setTimeout(function() {
+			$(".smarty-fs-auto-hide-notice").fadeTo(500, 0).slideUp(500, function(){
+				$(this).remove(); 
+				//console.log('Admin notice auto-hidden');
+			});
+		}, 3000);
+	});
 })(jQuery);

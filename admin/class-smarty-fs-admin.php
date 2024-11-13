@@ -70,7 +70,7 @@ class Smarty_Form_Submissions_Admin {
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public function enqueue_styles() {
 		/**
@@ -85,7 +85,16 @@ class Smarty_Form_Submissions_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-fs-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-fs-admin.css', array(), $this->version, false);
+		wp_localize_script(
+            $this->plugin_name,
+            'smartyFormSubmissions',
+            array(
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'siteUrl' => site_url(),
+                'nonce'   => wp_create_nonce('smarty_form_submissions_nonce'),
+            )
+        );
 	}
 
 	/**

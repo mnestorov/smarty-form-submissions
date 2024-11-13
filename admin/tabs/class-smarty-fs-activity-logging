@@ -4,7 +4,7 @@
  * The Activity Logging-specific functionality of the plugin.
  *
  * @link       https://github.com/mnestorov/smarty-form-submissions
- * @since      1.0.0
+ * @since      1.0.1
  *
  * @package    Smarty_Form_Submissions
  * @subpackage Smarty_Form_Submissions/admin/tabs
@@ -15,7 +15,7 @@ class Smarty_Fs_Activity_Logging {
     /**
 	 * Initializes the Activity Logging settings by registering the settings, sections, and fields.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
     public function fs_al_settings_init() {
         register_setting('smarty_fs_options_activity_logging', 'smarty_fs_settings_activity_logging');
@@ -48,7 +48,7 @@ class Smarty_Fs_Activity_Logging {
     /**
 	 * Callback function for the Activity & Logging main section.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public static function fs_section_tab_activity_logging_cb() {
 		echo '<p>' . __('View and manage the activity logs for the plugin.', 'smarty-form-submissions') . '</p>';
@@ -57,7 +57,7 @@ class Smarty_Fs_Activity_Logging {
     /**
 	 * Callback function for the Activity & Logging section field.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public static function fs_activity_log_cb() {
 		$instance = new self('Smarty_Fs_Admin', '1.0.1');
@@ -67,7 +67,7 @@ class Smarty_Fs_Activity_Logging {
     /**
      * Callback function to display the system info.
      *
-     * @since    1.0.0
+     * @since    1.0.1
      */
     public function fs_system_info_cb() {
 		$system_info = $this->get_system_info();
@@ -81,7 +81,7 @@ class Smarty_Fs_Activity_Logging {
 	/**
      * Get system information.
      *
-     * @since    1.0.0
+     * @since    1.0.1
      * @return string System information.
      */
     private function get_system_info() {
@@ -102,7 +102,7 @@ class Smarty_Fs_Activity_Logging {
 	/**
 	 * Display the activity log.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 */
 	public function fs_display_activity_log() {
 		// Retrieve log entries from the database or file
@@ -124,7 +124,7 @@ class Smarty_Fs_Activity_Logging {
 	/**
 	 * Add an entry to the activity log.
 	 *
-	 * @since    1.0.0
+	 * @since    1.0.1
 	 * @param string $message The log message.
 	 */
 	public static function fs_add_activity_log($message) {

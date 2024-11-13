@@ -13,7 +13,7 @@
  * @since      1.0.0
  *
  * @package    Smarty_Form_Submissions
- * @subpackage Smarty_Form_Submissions/public
+ * @subpackage Smarty_Form_Submissions/includes/classes
  * @author     Smarty Studio | Martin Nestorov
  */
 class Smarty_Form_Submissions_Locator {
@@ -59,7 +59,7 @@ class Smarty_Form_Submissions_Locator {
 		if (defined('FS_VERSION')) {
 			$this->version = FS_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.1';
 		}
 
 		$this->plugin_name = 'smarty-form-submissions';
@@ -98,9 +98,25 @@ class Smarty_Form_Submissions_Locator {
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-i18n.php';
 
 		/**
+		 * The class responsible for interacting with the API.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-api.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/class-smarty-fs-admin.php';
+
+		/**
+		 * The class responsible for Activity & Logging functionality in the admin area.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-fs-activity-logging.php';
+
+		/**
+		 * The class responsible for License functionality in the admin area.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . '../admin/tabs/class-smarty-fs-license.php';
+
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing side of the site.
@@ -136,8 +152,15 @@ class Smarty_Form_Submissions_Locator {
 	private function define_admin_hooks() {
 		$plugin_admin = new Smarty_Form_Submissions_Admin($this->get_plugin_name(), $this->get_version());
 
+		$plugin_activity_logging = new Smarty_Fs_Activity_Logging();
+		$plugin_license = new Smarty_Fs_License();
+
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'fs_add_settings_page');
+		$this->loader->add_action('admin_init', $plugin_admin, 'fs_settings_init');
+		$this->loader->add_action('admin_notices', $plugin_admin, 'fs_success_notice');
+		$this->loader->add_action('admin_notices', $plugin_admin, 'fs_admin_notice');
 		$this->loader->add_action('init', $plugin_admin, 'register_submission_type');
 		$this->loader->add_action('init', $plugin_admin, 'register_subject_taxonomy', 0);
 		$this->loader->add_action('admin_menu', $plugin_admin, 'remove_add_new_submenu');
@@ -150,6 +173,15 @@ class Smarty_Form_Submissions_Locator {
 		$this->loader->add_filter('manage_edit-submission_sortable_columns', $plugin_admin, 'make_submission_columns_sortable');
 		$this->loader->add_action('pre_get_posts', $plugin_admin, 'exclude_submissions_from_feed');
 		$this->loader->add_action('wp_ajax_delete_comment', $plugin_admin, 'delete_comment_ajax');
+
+		// Register hooks for Activity & Logging
+		$this->loader->add_action('admin_init', $plugin_activity_logging, 'fs_al_settings_init');
+        $this->loader->add_action('wp_ajax_smarty_fs_clear_logs', $plugin_activity_logging, 'fs_handle_ajax_clear_logs');
+
+		// Register hooks for License management
+		$this->loader->add_action('admin_init', $plugin_license, 'fs_l_settings_init');
+		$this->loader->add_action('updated_option', $plugin_license, 'fs_handle_license_status_check', 10, 3);
+		$this->loader->add_action('admin_notices', $plugin_license, 'fs_license_notice');
 	}
 
 	/**

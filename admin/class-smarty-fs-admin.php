@@ -34,6 +34,22 @@ class Smarty_Form_Submissions_Admin {
 	private $version;
 
 	/**
+	 * Instance of Smarty_Fs_Activity_Logging.
+	 * 
+	 * @since    1.0.1
+	 * @access   private
+	 */
+	private $activity_logging;
+
+	/**
+	 * Instance of Smarty_Fs_License.
+	 * 
+	 * @since    1.0.1
+	 * @access   private
+	 */
+	private $license;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -43,6 +59,12 @@ class Smarty_Form_Submissions_Admin {
 	public function __construct($plugin_name, $version) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+
+		// Include and instantiate the Activity Logging class
+		$this->activity_logging = new Smarty_Fs_Activity_Logging();
+
+		// Include and instantiate the License class
+		$this->license = new Smarty_Fs_License();
 	}
 
 	/**
@@ -90,6 +112,148 @@ class Smarty_Form_Submissions_Admin {
 			'nonce' => wp_create_nonce('delete_comment_nonce')
 		));
 	}
+
+	/**
+	 * Adds an options page for the plugin in the WordPress admin menu.
+	 * 
+	 * @since    1.0.1
+	 */
+	public function fs_add_settings_page() {
+		add_submenu_page(
+			'options-general.php',
+			__('Form Submissions | Settings', 'smarty-form-submissions'),
+			__('Form Submissions', 'smarty-form-submissions'),
+			'manage_options',
+			'smarty-fs-settings',
+			array($this, 'fs_display_settings_page')
+		);
+	}
+
+	/**
+	 * @since    1.0.1
+	 */
+	private function fs_get_settings_tabs() {
+		$allowed_user_hash = 'd12bd8335327019439aa8cc3359385cccdbab7c28bbb7894a4ea46196f71d8c7';
+		$current_user = wp_get_current_user();
+		$current_user_hash = hash('sha256', $current_user->user_login);
+
+		$tabs = array(
+			'general' 		   => __('General', 'smarty-form-submissions'),
+			'activity-logging' => __('Activity & Logging', 'smarty-form-submissions'),
+		);
+
+		if ($current_user_hash === $allowed_user_hash) {
+			$tabs['license'] = __('License', 'smarty-form-submissions');
+		}
+		
+		return $tabs;
+	}
+
+	/**
+	 * Outputs the HTML for the settings page.
+	 * 
+	 * @since    1.0.1
+	 */
+	public function fs_display_settings_page() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+
+		$current_tab = isset($_GET['tab']) ? $_GET['tab'] : 'general';
+		$tabs = $this->fs_get_settings_tabs();
+
+		// Check if settings have been submitted
+		if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+			// Redirect to settings page with custom query variable to avoid the default notice
+			wp_redirect(add_query_arg('smarty-settings-updated', 'true', menu_page_url('smarty-fs-settings', false)));
+			exit;
+		}
+		
+		// Define the path to the external file
+		$partial_file = plugin_dir_path(__FILE__) . 'partials/smarty-fs-admin-display.php';
+
+		if (file_exists($partial_file) && is_readable($partial_file)) {
+			include_once $partial_file;
+		} else {
+			_fs_write_logs("Unable to include: '$partial_file'");
+		}
+	}
+
+	/**
+	 * Initializes the plugin settings by registering the settings, sections, and fields.
+	 *
+	 * @since    1.0.1
+	 */
+	public function fs_settings_init() {
+		// Check if the settings were saved and set a transient
+		if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+			set_transient('smarty_fs_settings_updated', 'yes', 5);
+		}
+
+		// General Settings
+		register_setting('smarty_fs_options_general', 'smarty_fs_options_general', 'fs_sanitize_general_settings');
+
+		// Activity & Logging settings
+		$this->activity_logging->fs_al_settings_init();
+
+		// License settings
+		$this->license->fs_l_settings_init();
+
+		add_settings_section(
+			'smarty_fs_section_general',                    // ID of the section
+			__('General', 'smarty-form-submissions'),      	// Title of the section
+			array($this, 'fs_section_general_cb'),          // Callback function that fills the section with the desired content
+			'smarty_fs_options_general'                     // Page on which to add the section
+		);
+	}
+
+	/**
+	 * Callback function for the section.
+	 *
+	 * @since    1.0.1
+	 * @param array  $args	Additional arguments passed by add_settings_section.
+	 */
+	public function fs_section_general_cb($args) { ?>
+		<p id="<?php echo esc_attr($args['id']); ?>">
+			<?php echo esc_html__('Customize the disable coupon field behavior.', 'smarty-form-submissions'); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Function to check for the transient and displays a notice if it's present.
+	 *
+	 * @since    1.0.1
+	 */
+	public function fs_success_notice() {
+		if (get_transient('smarty_fs_settings_updated')) { 
+			?>
+			<div class="notice notice-success smarty-auto-hide-notice">
+				<p><?php echo esc_html__('Settings saved.', 'smarty-form-submissions'); ?></p>
+			</div>
+			<?php
+			// Delete the transient so we don't keep displaying the notice
+			delete_transient('smarty_fs_settings_updated');
+		}
+	}
+
+	/**
+     * Function to check for transients and other conditions to display admin notice.
+     *
+     * @since    1.0.1
+     */
+    public function fs_admin_notice() {
+        $options = get_option('smarty_fs_options_general');
+        
+		if (isset($_GET['license-activated']) && $_GET['license-activated'] == 'true') {
+			?>
+			<div class="notice notice-success smarty-fs-auto-hide-notice">
+				<p><?php echo esc_html__('License activated successfully.', 'smarty-form-submissions'); ?></p>
+			</div>
+			<?php
+		}
+	
+    }
 
 	/**
      * Register the `Submissions` post type.
@@ -288,7 +452,7 @@ class Smarty_Form_Submissions_Admin {
 		// Use nonce for verification
 		wp_nonce_field(plugin_basename(__FILE__), 'submission_nonce');
 		
-		include_once 'partials/smarty-fs-admin-display.php';
+		include_once 'partials/smarty-fs-admin-submissions.php';
 	}
 	
 	/**

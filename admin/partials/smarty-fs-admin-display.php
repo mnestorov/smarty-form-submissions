@@ -5,7 +5,7 @@
  * This file is used to markup the admin-facing aspects of the plugin.
  *
  * @link       https://github.com/mnestorov/smarty-form-submissions
- * @since      1.0.0
+ * @since      1.0.1
  *
  * @package    Smarty_Form_Submissions
  * @subpackage Smarty_Form_Submissions/admin/partials
@@ -13,42 +13,43 @@
  */
 ?>
 
-<div id="submission" class="wrap">
-	<table class="form-table wp-list-table widefat fixed striped">
-		<tbody>
-			<tr>
-				<th scope="row"><label for="first_name"><?= __('First Name:', 'smarty-form-submissions'); ?></label></th>
-				<td><input type="text" id="first_name" name="first_name" value="<?= esc_attr($firstName); ?>" class="regular-text" /></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="last_name"><?= __('Last Name:', 'smarty-form-submissions'); ?></label></th>
-				<td><input type="text" id="last_name" name="last_name" value="<?= esc_attr($lastName); ?>" class="regular-text" /></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="email"><?= __('Email:', 'smarty-form-submissions'); ?></label></th>
-				<td><input type="email" id="email" name="email" value="<?= esc_attr($email); ?>" class="regular-text" /></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="phone"><?= __('Phone:', 'smarty-form-submissions'); ?></label></th>
-				<td><input type="text" id="phone" name="phone" value="<?= esc_attr($phone); ?>" class="regular-text" /></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="subject"><?= __('Subject:', 'smarty-form-submissions'); ?></label></th>
-				<td>
-					<select id="subject" name="subject" class="regular-text">
-						<?php $terms = get_terms(['taxonomy' => 'subject', 'hide_empty' => false]); ?>
-						<?php foreach ($terms as $term) : ?>
-							<option value="<?= esc_attr($term->slug); ?>" <?= selected($selected_subject_slug, $term->slug, false); ?>>
-								<?= esc_html($term->name); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="message"><?= __('Message:', 'smarty-form-submissions'); ?></label></th>
-				<td><textarea id="message" name="message" class="large-text" rows="6"><?= esc_textarea($message); ?></textarea></td>
-			</tr>
-		</tbody>
-	</table>
+<?php $license_options = get_option('smarty_fs_settings_license'); ?>
+<?php $api_key = $license_options['api_key'] ?? ''; ?>
+
+<div class="wrap">
+	<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+	<h2 class="nav-tab-wrapper">
+		<?php foreach ($tabs as $tab_key => $tab_caption) : ?>
+			<?php $active = $current_tab == $tab_key ? 'nav-tab-active' : ''; ?>
+			<a class="nav-tab <?php echo $active; ?>" href="?page=smarty-fs-settings&tab=<?php echo $tab_key; ?>">
+				<?php echo $tab_caption; ?>
+			</a>
+		<?php endforeach; ?>
+	</h2>
+
+	<?php if ($this->license->fs_is_valid_api_key($api_key)) : ?>
+		<form action="options.php" method="post">
+			<?php if ($current_tab == 'general') : ?>
+				<?php settings_fields('smarty_fs_options_general'); ?>
+				<?php do_settings_sections('smarty_fs_options_general'); ?>
+			<?php elseif ($current_tab == 'activity-logging') : ?>
+				<?php settings_fields('smarty_fs_options_activity_logging'); ?>
+				<?php do_settings_sections('smarty_fs_options_activity_logging'); ?>
+			<?php elseif ($current_tab == 'license') : ?>
+				<?php settings_fields('smarty_fs_options_license'); ?>
+				<?php do_settings_sections('smarty_fs_options_license'); ?>
+			<?php endif; ?>
+			<?php submit_button(); ?>
+		</form>
+	<?php else: ?>
+		<form action="options.php" method="post">
+			<?php if ($current_tab == 'license') : ?>
+				<?php settings_fields('smarty_fs_options_license'); ?>
+				<?php do_settings_sections('smarty_fs_options_license'); ?>
+				<?php submit_button(__('Save Settings', 'smarty-form-submissions')); ?>
+			<?php else: ?>
+				<p class="description smarty-error" style="margin: 30px 0;"><?php echo esc_html__('Please enter a valid license key in the License tab to access this setting.', 'smarty-form-submissions'); ?></p>
+			<?php endif; ?>
+		</form>
+	<?php endif; ?>
 </div>

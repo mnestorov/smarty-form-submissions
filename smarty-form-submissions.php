@@ -16,7 +16,7 @@
  * Plugin Name:             SM - Form Submissions
  * Plugin URI:              https://github.com/mnestorov/smarty-form-submissions
  * Description:             Powerful and intuitive tool designed to enhance the interaction between website owners and their users through efficient form submission management.
- * Version:                 1.0.0
+ * Version:                 1.0.1
  * Author:                  Smarty Studio | Martin Nestorov
  * Author URI:              https://github.com/mnestorov
  * License:                 GPL-2.0+
@@ -36,7 +36,7 @@ if (!defined('FS_VERSION')) {
 	 * Current plugin version.
 	 * For the versioning of the plugin is used SemVer - https://semver.org
 	 */
-	define('FS_VERSION', '1.0.0');
+	define('FS_VERSION', '1.0.1');
 }
 
 // Check if FS_BASE_DIR is not already defined
@@ -61,6 +61,45 @@ if (!defined('FS_TABLE')) {
 	 * This constant is used to store the table name where form submissions data is kept.
 	 */
     define('FS_TABLE', 'form_submissions');
+}
+
+/**
+ * The base URL for the License Manager API.
+ *
+ * This URL points to the endpoint used for license validation requests.
+ * It should not be modified, as it is required for secure communication with the License Manager.
+ *
+ * @since 	1.0.1
+ * @access 	public
+ */
+if (!defined('API_URL')) {
+    define('API_URL', 'https://smartystudio.website/wp-json/smarty-vslm/v1/check-license'); // Do not change!
+}
+
+/**
+ * The Consumer Key for API authentication.
+ *
+ * Used to authenticate API requests securely alongside the Consumer Secret. 
+ * This key should remain constant and not be changed to avoid disruptions to API communication.
+ *
+ * @since 	1.0.1
+ * @access 	public
+ */
+if (!defined('CK_KEY')) {
+    define('CK_KEY', 'ck_eef59a26a46fa50bdbf7cda9306c5fab9bf2611d'); // Do not change!
+}
+
+/**
+ * The Consumer Secret for API authentication.
+ *
+ * Used in combination with the Consumer Key to secure API requests.
+ * This key should remain unchanged to ensure consistent and secure access to the API.
+ *
+ * @since 	1.0.1
+ * @access 	public
+ */
+if (!defined('CS_KEY')) {
+    define('CS_KEY', 'cs_5be478eed013423dbf7dac0c70a87346ff8b3e2d'); // Do not change!
 }
 
 /**

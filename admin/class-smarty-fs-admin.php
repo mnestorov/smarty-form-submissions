@@ -170,6 +170,21 @@ class Smarty_Form_Submissions_Admin {
 	}
 
 	/**
+	 * Remove Quick Edit for the 'submission' post type.
+	 *
+	 * @since 1.0.0
+	 * @param array $actions Array of row actions.
+	 * @param WP_Post $post The post object.
+	 * @return array Modified array of row actions.
+	 */
+	public function remove_quick_edit($actions, $post) {
+		if ($post->post_type === 'submission') {
+			unset($actions['inline hide-if-no-js']); // Remove Quick Edit
+		}
+		return $actions;
+	}
+
+	/**
 	 * @since    1.0.0
 	 */
 	public function register_submission_routes() {

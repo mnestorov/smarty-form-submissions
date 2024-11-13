@@ -145,6 +145,7 @@ class Smarty_Form_Submissions_Locator {
 		$this->loader->add_action('add_meta_boxes', $plugin_admin, 'add_submission_meta_boxes');
 		$this->loader->add_action('save_post', $plugin_admin, 'save_submission_meta_box');
 		$this->loader->add_action('admin_init', $plugin_admin, 'auto_publish_submission_on_edit');
+		$this->loader->add_filter('post_row_actions', $plugin_admin, 'remove_quick_edit', 10, 2);
 		$this->loader->add_filter('manage_submission_posts_columns', $plugin_admin, 'modify_submission_columns');
 		$this->loader->add_action('manage_submission_posts_custom_column', $plugin_admin, 'custom_submission_column', 10, 2);
 		$this->loader->add_filter('manage_edit-submission_sortable_columns', $plugin_admin, 'make_submission_columns_sortable');

@@ -271,30 +271,37 @@ class Smarty_Form_Submissions_Admin {
      * @return void
      */
     public function register_submission_type() {
-        register_post_type('submission', 
-			array(
-				'labels' => array(
-					'name' 				 => __('Submissions', 'smarty-form-submissions'),
-					'singular_name' 	 => __('Submission', 'smarty-form-submissions'),
-					'add_new'            => __('Add New Submission', 'smarty-form-submissions'),
-            		'add_new_item'       => __('Add New Submission', 'smarty-form-submissions'),
-					'edit_item'          => __('Edit Submission', 'smarty-form-submissions'),
-					'view_item'          => __('View Submission', 'smarty-form-submissions'),
-					'all_items'          => __('All Submissions', 'smarty-form-submissions'),
-					'search_items'       => __('Search Submissions', 'smarty-form-submissions'),
-				),
-				'public' 				 => true,
-				'publicly_queryable' 	 => false,
-				'exclude_from_search' 	 => true,
-				'has_archive' 			 => false,
-				'rewrite' 				 => array(
-					'slug' => 'submissions'
-				),
-        		'taxonomies' 			 => array('subject'),
-				'menu_icon' 			 => 'dashicons-buddicons-pm',
-				'supports' 				 => array('custom-fields'),
-			)
-		);
+		// Check if the license is valid
+		$license_options = get_option('smarty_fs_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+
+		// Only register the post type if the license is active
+		if ($this->license->fs_is_valid_api_key($api_key)) {
+			register_post_type('submission', 
+				array(
+					'labels' => array(
+						'name' 				 => __('Submissions', 'smarty-form-submissions'),
+						'singular_name' 	 => __('Submission', 'smarty-form-submissions'),
+						'add_new'            => __('Add New Submission', 'smarty-form-submissions'),
+						'add_new_item'       => __('Add New Submission', 'smarty-form-submissions'),
+						'edit_item'          => __('Edit Submission', 'smarty-form-submissions'),
+						'view_item'          => __('View Submission', 'smarty-form-submissions'),
+						'all_items'          => __('All Submissions', 'smarty-form-submissions'),
+						'search_items'       => __('Search Submissions', 'smarty-form-submissions'),
+					),
+					'public' 				 => true,
+					'publicly_queryable' 	 => false,
+					'exclude_from_search' 	 => true,
+					'has_archive' 			 => false,
+					'rewrite' 				 => array(
+						'slug' => 'submissions'
+					),
+					'taxonomies' 			 => array('subject'),
+					'menu_icon' 			 => 'dashicons-buddicons-pm',
+					'supports' 				 => array('custom-fields'),
+				)
+			);
+		}
     }
 
 	/**
@@ -346,11 +353,17 @@ class Smarty_Form_Submissions_Admin {
 	 * @since    1.0.0
 	 */
 	public function register_submission_routes() {
-		register_rest_route('smarty/v1', '/submit-form/', array(
-			'methods' => WP_REST_Server::CREATABLE,
-			'callback' => array($this, 'handle_form_submission'), // Corrected callback reference
-			'permission_callback' => '__return_true',
-		));
+		// Check if the license is valid
+		$license_options = get_option('smarty_fs_settings_license');
+		$api_key = $license_options['api_key'] ?? '';
+	
+		if ($this->license->fs_is_valid_api_key($api_key)) {
+			register_rest_route('smarty/v1', '/submit-form/', array(
+				'methods' => WP_REST_Server::CREATABLE,
+				'callback' => array($this, 'handle_form_submission'), // Corrected callback reference
+				'permission_callback' => '__return_true',
+			));
+		}
 	}
 
 	/**
@@ -435,7 +448,7 @@ class Smarty_Form_Submissions_Admin {
 		
 		add_meta_box(
 			'submission_admin_comments', 							// Unique ID
-			__('Comments', 'smarty-form-submissions'), 		// Box title
+			__('Comments', 'smarty-form-submissions'), 				// Box title
 			array($this, 'admin_comments_meta_box_html'), 			// Callback function
 			'submission' 											// Post type
 		);

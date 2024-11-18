@@ -36,12 +36,12 @@
         let postId = $('#post_ID').val();
         let postData = {
             action: 'delete_comment',
-            nonce: smartyFsAdmin.nonce,
+            nonce: smartyFormSubmissions.nonce,
             post_id: postId,
             comment_id: commentId
         };
 
-		$.post(smartyFsAdmin.ajax_url, postData, function(response) {
+		$.post(smartyFormSubmissions.ajax_url, postData, function(response) {
 			if (response.success) {
 				button.closest('div').remove();
 				window.location.reload(true);

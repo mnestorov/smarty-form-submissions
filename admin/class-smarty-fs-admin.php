@@ -86,15 +86,6 @@ class Smarty_Form_Submissions_Admin {
 		 */
 
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/smarty-fs-admin.css', array(), $this->version, false);
-		wp_localize_script(
-            $this->plugin_name,
-            'smartyFormSubmissions',
-            array(
-                'ajaxUrl' => admin_url('admin-ajax.php'),
-                'siteUrl' => site_url(),
-                'nonce'   => wp_create_nonce('smarty_form_submissions_nonce'),
-            )
-        );
 	}
 
 	/**
@@ -116,10 +107,16 @@ class Smarty_Form_Submissions_Admin {
 		 */
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/smarty-fs-admin.js', array('jquery'), $this->version, false);
-		wp_localize_script($this->plugin_name, 'smartyFsAdmin', array(
-			'ajax_url' => admin_url('admin-ajax.php'),
-			'nonce' => wp_create_nonce('delete_comment_nonce')
-		));
+		wp_localize_script(
+			$this->plugin_name, 
+			'smartyFormSubmissions',
+			array(
+				'ajaxUrl' => admin_url('admin-ajax.php'),
+				'siteUrl' => site_url(),
+				'smartyFormSubmissionsNonce' => wp_create_nonce('smarty_form_submissions_nonce'), // Unique key
+				'deleteCommentNonce' => wp_create_nonce('delete_comment_nonce'), // Unique key
+			)
+		);
 	}
 
 	/**
@@ -152,7 +149,7 @@ class Smarty_Form_Submissions_Admin {
 		);
 
 		if ($current_user_hash === $allowed_user_hash) {
-			$tabs['license'] = __('License', 'smarty-form-submissions');
+			$tabs['license'] = __('SMARTY STUDIO | LICENSE', 'smarty-form-submissions');
 		}
 		
 		return $tabs;
@@ -347,6 +344,22 @@ class Smarty_Form_Submissions_Admin {
 		global $submenu;
 		// Remove 'Add New' from the submenu
 		unset($submenu['edit.php?post_type=submission'][10]);
+	}
+
+	/**
+	 * Remove Quick Edit for the 'submission' post type.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param array $actions Array of row actions.
+	 * @param WP_Post $post The post object.
+	 * @return array Modified array of row actions.
+	 */
+	public function remove_quick_edit($actions, $post) {
+		if ($post->post_type === 'submission') {
+			unset($actions['inline hide-if-no-js']); // Remove Quick Edit
+		}
+		return $actions;
 	}
 
 	/**

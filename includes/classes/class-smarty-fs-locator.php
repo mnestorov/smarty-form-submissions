@@ -68,6 +68,7 @@ class Smarty_Form_Submissions_Locator {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_status_hooks();
 	}
 
 	/**
@@ -101,6 +102,11 @@ class Smarty_Form_Submissions_Locator {
 		 * The class responsible for interacting with the API.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-api.php';
+		
+		/**
+		 * The class responsible for registering REST Route for plugn status check.
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'classes/class-smarty-fs-status-check.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
@@ -197,6 +203,18 @@ class Smarty_Form_Submissions_Locator {
 		
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+	}
+	
+	/**
+	 * Register all of the hooks related to the REST Route functionality of the plugin.
+	 *
+	 * @since    1.0.1
+	 * @access   private
+	 */
+	private function define_status_hooks() {
+		$plugin_status = new Smarty_Form_Submissions_Status_Check($this->get_plugin_name(), $this->get_version());
+		
+		$this->loader->add_action('rest_api_init', $plugin_status, 'register_routes');
 	}
 
 	/**
